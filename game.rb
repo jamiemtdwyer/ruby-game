@@ -8,9 +8,7 @@ class Game < Gosu::Window
     self.caption = "Space shooter"
 
     @background_image = Gosu::Image.new("assets/space.png", tileable: true)
-
-    @player = Player.new
-    @player.warp(Config::WIDTH / 2, Config::HEIGHT / 2)
+    @player = Player.new(Config::WIDTH / 2, Config::HEIGHT / 2)
   end
 
   def update
@@ -20,17 +18,18 @@ class Game < Gosu::Window
   end
 
   def handle_input
-    @player.turn_left if Gosu.button_down? Gosu::KB_LEFT
-    @player.turn_right if Gosu.button_down? Gosu::KB_RIGHT
-    @player.accelerate if Gosu.button_down? Gosu::KB_UP
-    @player.shoot if Gosu.button_down? Gosu::KB_SPACE
+    @player.turn_left if Gosu.button_down?(Gosu::KB_LEFT)
+    @player.turn_right if Gosu.button_down?(Gosu::KB_RIGHT)
+    @player.accelerate if Gosu.button_down?(Gosu::KB_UP)
+    @player.shoot if Gosu.button_down?(Gosu::KB_SPACE)
 
-    close if Gosu.button_down? Gosu::KB_ESCAPE
+    close if Gosu.button_down?(Gosu::KB_ESCAPE)
   end
 
+  # TODO: Fix "magic" z-number for background image
   def draw
-    @player.draw
     @background_image.draw(0, 0, 0)
+    @player.draw
   end
 end
 
