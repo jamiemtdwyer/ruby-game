@@ -14,7 +14,7 @@ class Game < Gosu::Window
   def update
     handle_input
 
-    @player.move
+    @player.update
   end
 
   def handle_input

@@ -26,7 +26,7 @@ class Player
       )
 
       @bullets << bullet
-      @last_fired = Gosu.milliseconds;
+      @last_fired = Gosu.milliseconds
     end
   end
 
@@ -47,14 +47,14 @@ class Player
     @vel_y += Gosu.offset_y(@angle, 0.25)
   end
 
-  def move
+  def update
     @x = (@x + @vel_x) % Config::WIDTH
     @y = (@y + @vel_y) % Config::HEIGHT
     @vel_x *= 0.98
     @vel_y *= 0.98
 
     @bullets.reject! { |bullet| not bullet.alive? }
-    @bullets.each { |bullet| bullet.move }
+    @bullets.each { |bullet| bullet.update }
   end
 
   # TODO: Fix "magic" z-number

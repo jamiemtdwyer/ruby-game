@@ -13,7 +13,7 @@ class Bullet
     @alive
   end
 
-  def move
+  def update
     @x += Gosu.offset_x(@angle, 10.0)
     @y += Gosu.offset_y(@angle, 10.0)
 
