@@ -3,23 +3,31 @@ require_relative 'config.rb'
 require_relative 'bullet.rb'
 
 class Player
-  def initialize
-    @sprite = Gosu::Image.new("assets/player.png")
-    @bullets = []
-    @x = @y = @vel_x = @vel_y = @angle = 0.0
-    @score = 0
+  FIRE_DELAY = 100
+
+  def initialize(x = 0, y = 0)
+    @x = x
+    @y = y
+    @vel_x = @vel_y = @angle = 0.0
     @name = "jamie d"
+    @last_fired = 0
+    @bullets = []
+
+    @sprite = Gosu::Image.new("assets/player.png")
     @label = Gosu::Font.new(12, name: Gosu::default_font_name)
   end
 
   def shoot
-    # find 'tip' of spaceship:
-    x = @x + Gosu.offset_x(@angle, @sprite.height / 2)
-    y = @y + Gosu.offset_y(@angle, @sprite.height / 2)
-    angle = @angle
-    bullet = Bullet.new(x, y, angle)
+    if (Gosu.milliseconds - @last_fired) > FIRE_DELAY
+      bullet = Bullet.new(
+        @x + Gosu.offset_x(@angle, @sprite.height / 2),
+        @y + Gosu.offset_y(@angle, @sprite.height / 2),
+        @angle
+      )
 
-    @bullets << bullet
+      @bullets << bullet
+      @last_fired = Gosu.milliseconds;
+    end
   end
 
   def warp(x, y)
@@ -35,9 +43,8 @@ class Player
   end
 
   def accelerate
-    # offset_x and offset_y compute x and y complements
-    @vel_x += Gosu.offset_x(@angle, 0.75)
-    @vel_y += Gosu.offset_y(@angle, 0.75)
+    @vel_x += Gosu.offset_x(@angle, 0.25)
+    @vel_y += Gosu.offset_y(@angle, 0.25)
   end
 
   def move
@@ -46,11 +53,11 @@ class Player
     @vel_x *= 0.98
     @vel_y *= 0.98
 
-    # clean up bullets
     @bullets.reject! { |bullet| not bullet.alive? }
     @bullets.each { |bullet| bullet.move }
   end
 
+  # TODO: Fix "magic" z-number
   def draw
     @sprite.draw_rot(@x, @y, 1, @angle)
     @label.draw_text(@name, @x - @sprite.height * 0.25, @y - @sprite.height * 0.75, 1, 1.0, 1.0, Gosu::Color::WHITE)
