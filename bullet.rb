@@ -1,7 +1,9 @@
 require_relative 'config.rb'
 
 class Bullet
-  def initialize(x = 0, y = 0, angle = 0)
+  attr_reader :x, :y
+
+  def initialize(x: 0, y: 0, angle: 0)
     @sprite = Gosu::Image.new("assets/laserRed.png")
     @x = x
     @y = y
@@ -11,6 +13,10 @@ class Bullet
 
   def alive?
     @alive
+  end
+
+  def die
+    @alive = false
   end
 
   def update

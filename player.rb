@@ -2,32 +2,47 @@ require 'gosu'
 require_relative 'config.rb'
 require_relative 'bullet.rb'
 
-class Player
+class Ship
+  attr_reader :x, :y, :bullets
+
   FIRE_DELAY = 100
 
-  def initialize(x = 0, y = 0)
+  def initialize(x: 0, y: 0, sprite: "assets/player.png", name: nil)
     @x = x
     @y = y
     @vel_x = @vel_y = @angle = 0.0
-    @name = "jamie d"
+    @name = name
+    @alive = true
     @last_fired = 0
     @bullets = []
 
-    @sprite = Gosu::Image.new("assets/player.png")
+    @sprite = Gosu::Image.new(sprite)
     @label = Gosu::Font.new(12, name: Gosu::default_font_name)
+  end
+
+  def alive?
+    @alive
+  end
+
+  def die
+    @alive = false
   end
 
   def shoot
     if (Gosu.milliseconds - @last_fired) > FIRE_DELAY
       bullet = Bullet.new(
-        @x + Gosu.offset_x(@angle, @sprite.height / 2),
-        @y + Gosu.offset_y(@angle, @sprite.height / 2),
-        @angle
+        x: @x + Gosu.offset_x(@angle, @sprite.height / 2),
+        y: @y + Gosu.offset_y(@angle, @sprite.height / 2),
+        angle: @angle
       )
 
       @bullets << bullet
       @last_fired = Gosu.milliseconds
     end
+  end
+
+  def collect_powerups(powerups)
+    powerups.reject! { |p| Gosu.distance(@x, @y, p.x, p.y) < 50 }
   end
 
   def warp(x, y)
@@ -59,9 +74,10 @@ class Player
 
   # TODO: Fix "magic" z-number
   def draw
+    return unless self.alive?
+
     @sprite.draw_rot(@x, @y, 1, @angle)
     @label.draw_text(@name, @x - @sprite.height * 0.25, @y - @sprite.height * 0.75, 1, 1.0, 1.0, Gosu::Color::WHITE)
-
     @bullets.each { |bullet| bullet.draw }
   end
 end
