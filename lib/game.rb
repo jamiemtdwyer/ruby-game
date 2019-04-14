@@ -1,11 +1,11 @@
 require 'gosu'
-require_relative 'config.rb'
-require_relative 'player.rb'
-require_relative 'powerup.rb'
+require_relative 'game/config.rb'
+require_relative 'game/player.rb'
+require_relative 'game/powerup.rb'
 
 class Game < Gosu::Window
   def initialize
-    super Config::WIDTH, Config::HEIGHT
+    super(Config::WIDTH, Config::HEIGHT)
     self.caption = "Space shooter"
 
     @background_image = Gosu::Image.new("assets/space.png", tileable: true)
@@ -14,13 +14,15 @@ class Game < Gosu::Window
       x: Config::WIDTH / 2,
       y: Config::HEIGHT / 2,
       sprite: "assets/player.png",
-      name: "jamie d")
+      name: "jamie d"
+    )
 
     @enemy = Ship.new(
       x: rand(Config::WIDTH),
       y: rand(Config::HEIGHT),
       sprite: "assets/enemy.png",
-      name: "bad guy")
+      name: "bad guy"
+    )
 
     @powerups = []
   end
@@ -34,9 +36,8 @@ class Game < Gosu::Window
     check_collisions
   end
 
-  # TODO: Fix "magic" z-number for background image
   def draw
-    @background_image.draw(0, 0, 0)
+    @background_image.draw(0, 0, Config::Z_BACKGROUND)
     @player.draw
     @enemy.draw
     @powerups.each { |p| p.draw }
@@ -56,17 +57,18 @@ class Game < Gosu::Window
   def check_collisions
     @player.collect_powerups(@powerups)
 
-    @player.bullets.each do |bullet|
-      if Gosu.distance(bullet.x, bullet.y, @enemy.x, @enemy.y) < 50
-        @enemy.die
-        bullet.die
+    if @enemy.alive?
+      @player.bullets.each do |bullet|
+        if Gosu.distance(bullet.x, bullet.y, @enemy.x, @enemy.y) < 50
+          @enemy.die
+          bullet.die
+        end
       end
     end
   end
 
+  # 0.1% chance of a powerup spawning every tick, maximum of 5
   def spawn_powerups
-    # 0.1% chance of a powerup spawning every "tick"
-    # maximum of 5 powerups on the board
     if rand(1000) < 1 && @powerups.size < 5
       @powerups << Powerup.new(x: rand(Config::WIDTH), y: rand(Config::HEIGHT))
     end

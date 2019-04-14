@@ -3,6 +3,8 @@ require_relative 'config.rb'
 class Bullet
   attr_reader :x, :y
 
+  ACCELERATION = 10.0
+
   def initialize(x: 0, y: 0, angle: 0)
     @sprite = Gosu::Image.new("assets/laserRed.png")
     @x = x
@@ -20,14 +22,13 @@ class Bullet
   end
 
   def update
-    @x += Gosu.offset_x(@angle, 10.0)
-    @y += Gosu.offset_y(@angle, 10.0)
+    @x += Gosu.offset_x(@angle, ACCELERATION)
+    @y += Gosu.offset_y(@angle, ACCELERATION)
 
-    @alive = false if @y > Config::HEIGHT or @y < 0 or @x > Config::WIDTH or @x < 0
+    self.die if @y > Config::HEIGHT or @y < 0 or @x > Config::WIDTH or @x < 0
   end
 
-  # TODO: Fix "magic" z-number
   def draw
-    @sprite.draw_rot(@x, @y, 1, @angle)
+    @sprite.draw_rot(@x, @y, Config::Z_SPRITE, @angle)
   end
 end

@@ -5,9 +5,11 @@ require_relative 'bullet.rb'
 class Ship
   attr_reader :x, :y, :bullets
 
-  FIRE_DELAY = 100
+  FIRE_DELAY = 100.freeze
+  VELOCITY_DECAY = 0.98.freeze
+  ACCELERATION = 0.25.freeze
 
-  def initialize(x: 0, y: 0, sprite: "assets/player.png", name: nil)
+  def initialize(x: 0, y: 0, sprite: "assets/player.png", name: "Player")
     @x = x
     @y = y
     @vel_x = @vel_y = @angle = 0.0
@@ -58,26 +60,33 @@ class Ship
   end
 
   def accelerate
-    @vel_x += Gosu.offset_x(@angle, 0.25)
-    @vel_y += Gosu.offset_y(@angle, 0.25)
+    @vel_x += Gosu.offset_x(@angle, ACCELERATION)
+    @vel_y += Gosu.offset_y(@angle, ACCELERATION)
   end
 
   def update
     @x = (@x + @vel_x) % Config::WIDTH
     @y = (@y + @vel_y) % Config::HEIGHT
-    @vel_x *= 0.98
-    @vel_y *= 0.98
+
+    @vel_x *= VELOCITY_DECAY
+    @vel_y *= VELOCITY_DECAY
 
     @bullets.reject! { |bullet| not bullet.alive? }
     @bullets.each { |bullet| bullet.update }
   end
 
-  # TODO: Fix "magic" z-number
   def draw
     return unless self.alive?
 
-    @sprite.draw_rot(@x, @y, 1, @angle)
-    @label.draw_text(@name, @x - @sprite.height * 0.25, @y - @sprite.height * 0.75, 1, 1.0, 1.0, Gosu::Color::WHITE)
+    @sprite.draw_rot(@x, @y, Config::Z_SPRITE, @angle)
+
+    @label.draw_text(
+      @name,
+      @x - @sprite.height * 0.25,
+      @y - @sprite.height * 0.75,
+      Config::Z_TEXT
+    )
+
     @bullets.each { |bullet| bullet.draw }
   end
 end

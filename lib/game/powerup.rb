@@ -9,8 +9,7 @@ class Powerup
     @y = y
   end
 
-  # TODO: Fix "magic" z-number
   def draw
-    @sprite.draw_rot(x, y, 1, 0)
+    @sprite.draw_rot(@x, @y, Config::Z_SPRITE, 0)
   end
 end
